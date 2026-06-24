@@ -1,6 +1,4 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/zelssorathiya2615/Parkd/main/.assets/logo.png" alt="Parkd Logo" width="120" />
-
   # Parkd — Smart Parking System
   
   **A scalable, full-stack Parking Management System built with Node.js, Express, and Oracle Database.**
