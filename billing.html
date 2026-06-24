@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Parkd — Billing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=chillax@600,700&f[]=satoshi@400,500,700,900&display=swap"/>
+<style>
+:root{--black:#10100e;--gray-d3:#191815;--gray-d2:#30302b;--gray-d1:#606055;--gray-b:#c0c0ab;--gray-l1:#e8e8cf;--gray-l2:#f8f8dd;--white:#FFFFE3;--font-logo:'Chillax',sans-serif;--font-main:'Satoshi',sans-serif;--font-mono:'Space Mono',monospace;--ease:cubic-bezier(0.16,1,0.3,1);--sidebar:220px;--topbar:56px;--botnav:60px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{height:100%}
+body{min-height:100%;background:var(--white);color:var(--black);font-family:var(--font-main);-webkit-font-smoothing:antialiased;overflow-x:hidden;cursor:none}a{text-decoration:none;color:inherit}
+.cur{position:fixed;top:0;left:0;width:10px;height:10px;background:var(--white);border-radius:50%;pointer-events:none;z-index:9999;will-change:transform;mix-blend-mode:difference}
+.cur-r{position:fixed;top:0;left:0;width:36px;height:36px;border:1.5px solid var(--white);border-radius:50%;pointer-events:none;z-index:9998;will-change:transform;mix-blend-mode:difference;transition:width .22s var(--ease),height .22s var(--ease),opacity .22s}
+.cur.hov{width:18px;height:18px}.cur-r.hov{width:56px;height:56px;opacity:.6}
+.app{display:flex;min-height:100svh}
+.sidebar{width:var(--sidebar);background:var(--white);border-right:1px solid var(--gray-l1);position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:100}
+.sb-logo{height:var(--topbar);display:flex;align-items:center;padding:0 24px;border-bottom:1px solid var(--gray-l1);font-family:var(--font-logo);font-weight:700;font-size:1.3rem;letter-spacing:-.02em;color:var(--black);text-decoration:none;flex-shrink:0}
+.sb-nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.sb-section{font-family:var(--font-mono);font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-b);padding:14px 12px 6px}
+.sb-link{display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:.84rem;font-weight:500;color:var(--gray-d1);transition:background .15s,color .15s;position:relative;cursor:none;text-decoration:none}
+.sb-link:hover{background:var(--gray-l2);color:var(--black)}.sb-link.active{background:var(--gray-l2);color:var(--black);font-weight:600}
+.sb-link.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:2px;height:18px;background:var(--black)}
+.sb-link svg{width:16px;height:16px;flex-shrink:0}
+.sb-foot{border-top:1px solid var(--gray-l1);padding:14px 12px}
+.sb-user{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:none;transition:background .15s}.sb-user:hover{background:var(--gray-l2)}
+.sb-avatar{width:30px;height:30px;background:var(--black);color:var(--white);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.65rem;font-weight:700;flex-shrink:0}
+.sb-uname{font-size:.82rem;font-weight:600;color:var(--black)}.sb-urole{font-size:.68rem;color:var(--gray-b);margin-top:1px}
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100svh}
+.topbar{height:var(--topbar);border-bottom:1px solid var(--gray-l1);display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:var(--white);flex-shrink:0}
+.topbar-title{font-weight:700;font-size:.95rem;letter-spacing:-.01em;color:var(--black)}.topbar-sub{font-family:var(--font-mono);font-size:.6rem;color:var(--gray-b);margin-top:2px;letter-spacing:.04em}
+.icon-btn{width:34px;height:34px;border:1px solid var(--gray-l1);background:var(--white);display:flex;align-items:center;justify-content:center;cursor:none;color:var(--gray-d1);transition:border-color .15s,color .15s;text-decoration:none}
+.icon-btn:hover{border-color:var(--black);color:var(--black)}.icon-btn svg{width:15px;height:15px}
+.mob-topbar{display:none;height:56px;background:var(--white);border-bottom:1px solid var(--gray-l1);align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0}
+.mob-logo{font-family:var(--font-logo);font-weight:700;font-size:1.3rem;letter-spacing:-.02em;color:var(--black)}
+.bot-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:var(--botnav);background:var(--white);border-top:1px solid var(--gray-l1);z-index:100;align-items:center;justify-content:space-around;padding:0 8px}
+.bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 16px;cursor:none;color:var(--gray-b);transition:color .15s;text-decoration:none;position:relative}
+.bn-item.active{color:var(--black)}.bn-item.active::before{content:'';position:absolute;top:-1px;left:50%;transform:translateX(-50%);width:20px;height:2px;background:var(--black)}
+.bn-item svg{width:21px;height:21px}.bn-label{font-family:var(--font-mono);font-size:.52rem;letter-spacing:.08em;text-transform:uppercase}
+.btn{font-family:var(--font-main);font-size:.76rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:10px 20px;border:1.5px solid var(--black);background:transparent;color:var(--black);cursor:none;transition:background .2s,color .2s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{background:var(--black);color:var(--white)}.btn-f{background:var(--black);color:var(--white)}.btn-f:hover{background:var(--gray-d2)}
+.content{flex:1;padding:24px 32px;display:flex;flex-direction:column;gap:16px}
+
+/* BILLING SPECIFIC */
+.bill-grid{display:grid;grid-template-columns:440px 1fr;gap:20px;align-items:start}
+.bill-empty{display:none;border:1px dashed var(--gray-l1);padding:22px;text-align:center;color:var(--gray-d1);font-size:.85rem}
+
+/* Summary card */
+.bill-card{border:1px solid var(--black);animation:fadeUp .5s var(--ease) both}
+.bc-head{background:var(--black);padding:20px 24px;display:flex;align-items:center;justify-content:space-between}
+.bc-facility{font-weight:700;font-size:.95rem;color:var(--white);margin-bottom:3px}
+.bc-slot{font-family:var(--font-mono);font-size:.65rem;color:var(--gray-d1);letter-spacing:.06em}
+.bc-status{font-family:var(--font-mono);font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--gray-d2);color:var(--gray-b);padding:3px 8px}
+.bc-body{padding:0 24px}
+.bill-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--gray-l1)}
+.bill-row:last-child{border-bottom:none}
+.br-label{font-size:.84rem;color:var(--gray-d1)}
+.br-val{font-family:var(--font-mono);font-size:.88rem;font-weight:700;color:var(--black)}
+.bill-offer{background:var(--gray-l2);border:1px solid var(--gray-l1);padding:10px 14px;margin:0 24px 0;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.offer-name{font-size:.8rem;font-weight:600;color:var(--black)}
+.offer-desc{font-size:.72rem;color:var(--gray-d1);margin-top:2px}
+.offer-pct{font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--black)}
+.btn-change-offer{font-family:var(--font-mono);font-size:0.65rem;border:1px solid var(--black);background:transparent;padding:4px 8px;cursor:none;margin-left:8px}
+.btn-change-offer:hover{background:var(--black);color:var(--white)}
+.bill-total{background:var(--black);padding:18px 24px;display:flex;align-items:center;justify-content:space-between}
+.bt-label{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-b)}
+.bt-val{font-family:var(--font-mono);font-size:1.5rem;font-weight:700;color:var(--white)}
+.pay-section{padding:20px 24px;border-top:1px solid var(--gray-l1);display:flex;flex-direction:column;gap:12px}
+.pay-label{font-family:var(--font-mono);font-size:.58rem;letter-spacing:.13em;text-transform:uppercase;color:var(--gray-b);margin-bottom:4px}
+.pay-note{font-size:.78rem;color:var(--gray-d1);line-height:1.5;margin-top:8px}
+
+/* Pay button with animation */
+.btn-pay{width:100%;height:52px;background:var(--black);color:var(--white);border:none;font-family:var(--font-main);font-size:.86rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:none;display:flex;align-items:center;justify-content:center;gap:10px;transition:background .2s}
+.btn-pay:hover{background:var(--gray-d2)}
+.btn-pay.paid{background:var(--black);pointer-events:none}
+.btn-pay svg{width:15px;height:15px}
+
+/* Right info panels */
+.info-col{display:flex;flex-direction:column;gap:14px;animation:fadeUp .5s var(--ease) .08s both}
+.info-card{border:1px solid var(--gray-l1);padding:20px}
+.ic-title{font-weight:700;font-size:.88rem;letter-spacing:-.01em;color:var(--black);margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--gray-l1)}
+.info-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--gray-l1)}
+.info-row:last-child{border-bottom:none}
+.ir-label{font-size:.78rem;color:var(--gray-d1)}
+.ir-val{font-family:var(--font-mono);font-size:.82rem;font-weight:700;color:var(--black)}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(16,16,14,0.6);z-index:900;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px)}
+.modal-overlay.show{display:flex;animation:fadeIn .2s}
+.modal{background:var(--white);border:1px solid var(--black);width:100%;max-width:400px;display:flex;flex-direction:column;position:relative;animation:fadeUp .3s}
+.modal-head{padding:18px 24px;border-bottom:1px solid var(--gray-l1);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-weight:700;font-size:.95rem;color:var(--black)}
+.modal-body{padding:24px;max-height:70vh;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.offer-list-item{border:1px solid var(--gray-l1);padding:12px;cursor:none;display:flex;justify-content:space-between;align-items:center}
+.offer-list-item:hover{border-color:var(--black)}
+.offer-list-item .oli-name{font-weight:600;font-size:0.8rem}
+.offer-list-item .oli-desc{font-size:0.7rem;color:var(--gray-d1)}
+.offer-list-item .oli-pct{font-family:var(--font-mono);font-size:0.9rem;font-weight:700}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:960px){.bill-grid{grid-template-columns:1fr}}
+@media(max-width:768px){
+  body{cursor:auto}.cur,.cur-r{display:none}
+  .sidebar{display:none}.mob-topbar{display:flex}.bot-nav{display:flex}
+  .main{margin-left:0}.topbar{display:none}
+  .content{padding:14px 14px calc(var(--botnav)+14px);gap:14px}
+  .bill-grid{grid-template-columns:1fr}
+  .bill-offer{margin:0 16px}
+  .bc-body{padding:0 16px}
+  .bc-head{padding:16px}
+  .bill-total{padding:14px 16px}
+  .pay-section{padding:16px}
+}
+</style>
+</head>
+<body data-page="billing">
+<div class="cur" id="cur"></div><div class="cur-r" id="curR"></div>
+<div class="mob-topbar"><span class="mob-logo">parkd</span><a href="dashboard.html" class="icon-btn"><svg viewBox="0 0 15 15" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+<div class="app">
+  <aside class="sidebar">
+    <a href="index.html" class="sb-logo">parkd</a>
+    <nav class="sb-nav">
+      <div class="sb-section">Main</div>
+      <a href="dashboard.html" class="sb-link"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="1" width="6" height="6" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="9" width="6" height="6" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="9" width="6" height="6" stroke="currentColor" stroke-width="1.3"/></svg>Dashboard</a>
+      <a href="find.html" class="sb-link"><svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.3"/><path d="M12 12l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Find Parking</a>
+      <a href="slots.html" class="sb-link"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="14" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="1" width="6" height="14" stroke="currentColor" stroke-width="1.3"/></svg>Slot Grid</a>
+      <a href="ticket.html" class="sb-link"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" stroke="currentColor" stroke-width="1.3"/><path d="M1 7h14" stroke="currentColor" stroke-width="1.3"/><circle cx="4.5" cy="10" r=".8" fill="currentColor"/></svg>My Ticket</a>
+      <div class="sb-section">Account</div>
+      <a href="history.html" class="sb-link"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>History</a>
+      <a href="billing.html" class="sb-link active"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" stroke="currentColor" stroke-width="1.3"/><path d="M1 7h14" stroke="currentColor" stroke-width="1.3"/><path d="M4 10.5h3M10 10.5h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Billing</a>
+      <a href="queue.html" class="sb-link"><svg viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Queue</a>
+    </nav>
+    <div class="sb-foot"><div class="sb-user"><div class="sb-avatar">AP</div><div style="flex:1;min-width:0"><div class="sb-uname">Arjun Patel</div><div class="sb-urole">Gold Plan &middot; Active</div></div></div></div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <div><div class="topbar-title">Billing</div><div class="topbar-sub">Review and pay your parking bill</div></div>
+      <div style="display:flex;gap:8px"><a href="ticket.html" class="icon-btn"><svg viewBox="0 0 15 15" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
+    </div>
+    <div class="content">
+      <div class="bill-grid">
+        <div class="bill-card">
+          <div class="bc-head">
+            <div><div class="bc-facility">Loading...</div><div class="bc-slot">&mdash;</div></div>
+            <div class="bc-status">&mdash;</div>
+          </div>
+          <div class="bc-body">
+            <div class="bill-row"><span class="br-label">Base rate</span><span class="br-val">&mdash;</span></div>
+            <div class="bill-row"><span class="br-label">Duration</span><span class="br-val">&mdash;</span></div>
+            <div class="bill-row"><span class="br-label">Subtotal</span><span class="br-val">&mdash;</span></div>
+            <div class="bill-row"><span class="br-label">Gold discount (10%)</span><span class="br-val">&mdash;</span></div>
+          </div>
+          <div class="bill-offer">
+            <div style="flex:1">
+              <div class="offer-name">No Offer Applied</div>
+              <div class="offer-desc">Available offers can be selected</div>
+            </div>
+            <div class="offer-pct" style="display:none">&#8722;15%</div>
+            <button class="btn-change-offer" onclick="openOfferModal()">Change</button>
+          </div>
+          <div class="bc-body">
+            <div class="bill-row"><span class="br-label">Offer discount</span><span class="br-val">&mdash;</span></div>
+          </div>
+          <div class="bill-total">
+            <div class="bt-label">Total payable</div>
+            <div class="bt-val">&mdash;</div>
+          </div>
+          <div class="pay-section">
+            <div>
+              <div class="pay-label">Payment</div>
+              <button class="btn-pay" id="payBtn" onclick="handlePay()">
+                <svg viewBox="0 0 15 15" fill="none"><rect x="1" y="3" width="13" height="10" stroke="currentColor" stroke-width="1.3"/><path d="M1 7h13" stroke="currentColor" stroke-width="1.3"/></svg>
+                Pay &mdash; Now
+              </button>
+            </div>
+            <div class="pay-note">Your Gold plan discount and the weekend offer have been automatically applied. Payment is processed securely.</div>
+          </div>
+        </div>
+        <div class="info-col">
+          <div class="info-card">
+            <div class="ic-title">Session Details</div>
+            <div class="info-row"><span class="ir-label">Vehicle</span><span class="ir-val">&mdash;</span></div>
+            <div class="info-row"><span class="ir-label">Entry time</span><span class="ir-val">&mdash;</span></div>
+            <div class="info-row"><span class="ir-label">Exit time</span><span class="ir-val">&mdash;</span></div>
+            <div class="info-row"><span class="ir-label">Ticket ID</span><span class="ir-val">&mdash;</span></div>
+            <div class="info-row"><span class="ir-label">Plan</span><span class="ir-val">&mdash;</span></div>
+          </div>
+          <div class="info-card">
+            <div class="ic-title">Breakdown</div>
+            <div class="info-row"><span class="ir-label">&mdash;</span><span class="ir-val">&mdash;</span></div>
+            <div class="info-row"><span class="ir-label">Gold discount</span><span class="ir-val">&mdash;</span></div>
+            <div class="info-row"><span class="ir-label">Offer discount</span><span class="ir-val">&mdash;</span></div>
+            <div class="info-row" style="border-bottom:1.5px solid var(--black);padding-bottom:14px"><span class="ir-label" style="font-weight:700;color:var(--black)">Total</span><span class="ir-val" style="font-size:1rem">&mdash;</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="bill-empty" id="billEmpty">Loading bill...</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="offerModal" onclick="if(event.target===this)closeOfferModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Select Offer</div>
+      <div class="icon-btn" onclick="closeOfferModal()" style="border:none"><svg viewBox="0 0 13 13" fill="none"><path d="M2 2l9 9M11 2L2 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+    </div>
+    <div class="modal-body" id="offerListBody">
+    </div>
+  </div>
+</div>
+
+<nav class="bot-nav">
+  <a href="dashboard.html" class="bn-item"><svg viewBox="0 0 22 22" fill="none"><rect x="2" y="2" width="8" height="8" stroke="currentColor" stroke-width="1.5"/><rect x="12" y="2" width="8" height="8" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="12" width="8" height="8" stroke="currentColor" stroke-width="1.5"/><rect x="12" y="12" width="8" height="8" stroke="currentColor" stroke-width="1.5"/></svg><span class="bn-label">Home</span></a>
+  <a href="find.html" class="bn-item"><svg viewBox="0 0 22 22" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M17 17l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="bn-label">Find</span></a>
+  <a href="slots.html" class="bn-item"><svg viewBox="0 0 22 22" fill="none"><rect x="2" y="2" width="8" height="18" stroke="currentColor" stroke-width="1.5"/><rect x="12" y="2" width="8" height="18" stroke="currentColor" stroke-width="1.5"/></svg><span class="bn-label">Slots</span></a>
+  <a href="history.html" class="bn-item active"><svg viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="8.5" stroke="currentColor" stroke-width="1.5"/><path d="M11 7v4.5l2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="bn-label">History</span></a>
+  <a href="profile.html" class="bn-item"><svg viewBox="0 0 22 22" fill="none"><circle cx="11" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M4 19c.6-3 3.5-5 7-5s6.4 2 7 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="bn-label">Profile</span></a>
+</nav>
+<script>
+const cur=document.getElementById('cur'),curR=document.getElementById('curR');let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
+(function loop(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;cur.style.transform=`translate3d(${mx}px,${my}px,0) translate(-50%,-50%)`;curR.style.transform=`translate3d(${rx}px,${ry}px,0) translate(-50%,-50%)`;requestAnimationFrame(loop)})();
+document.querySelectorAll('a,button,.icon-btn,.sb-user,.bn-item').forEach(el=>{el.addEventListener('mouseenter',()=>{cur.classList.add('hov');curR.classList.add('hov')});el.addEventListener('mouseleave',()=>{cur.classList.remove('hov');curR.classList.remove('hov')})});
+</script>
+<script src="js/parkd-api.js"></script>
+<script src="js/parkd-app.js"></script>
+<script src="js/parkd-pages.js"></script>
+</body>
+</html>

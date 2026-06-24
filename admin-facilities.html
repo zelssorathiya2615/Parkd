@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Parkd Admin — Facilities</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=chillax@600,700&f[]=satoshi@400,500,700,900&display=swap"/>
+<style>
+:root{--black:#10100e;--gray-d3:#191815;--gray-d2:#30302b;--gray-d1:#606055;--gray-b:#c0c0ab;--gray-l1:#e8e8cf;--gray-l2:#f8f8dd;--white:#FFFFE3;--font-logo:'Chillax',sans-serif;--font-main:'Satoshi',sans-serif;--font-mono:'Space Mono',monospace;--ease:cubic-bezier(0.16,1,0.3,1);--sidebar:220px;--topbar:56px;--botnav:60px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{height:100%}
+body{min-height:100%;background:var(--white);color:var(--black);font-family:var(--font-main);-webkit-font-smoothing:antialiased;overflow-x:hidden;cursor:none}a{text-decoration:none;color:inherit}
+.cur{position:fixed;top:0;left:0;width:10px;height:10px;background:var(--white);border-radius:50%;pointer-events:none;z-index:9999;will-change:transform;mix-blend-mode:difference}
+.cur-r{position:fixed;top:0;left:0;width:36px;height:36px;border:1.5px solid var(--white);border-radius:50%;pointer-events:none;z-index:9998;will-change:transform;mix-blend-mode:difference;transition:width .22s var(--ease),height .22s var(--ease),opacity .22s}
+.cur.hov{width:18px;height:18px}.cur-r.hov{width:56px;height:56px;opacity:.6}
+.app{display:flex;min-height:100svh}
+.sidebar{width:var(--sidebar);background:var(--white);border-right:1px solid var(--gray-l1);position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:100}
+.sb-logo{height:var(--topbar);display:flex;align-items:center;gap:8px;padding:0 20px;border-bottom:1px solid var(--gray-l1);text-decoration:none;flex-shrink:0}
+.sb-logo-text{font-family:var(--font-logo);font-weight:700;font-size:1.3rem;letter-spacing:-.02em;color:var(--black)}
+.sb-admin-tag{font-family:var(--font-mono);font-size:.52rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--gray-l1);color:var(--gray-b);padding:2px 6px}
+.sb-nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.sb-section{font-family:var(--font-mono);font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-b);padding:14px 12px 6px}
+.sb-link{display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:.84rem;font-weight:500;color:var(--gray-d1);transition:background .15s,color .15s;position:relative;cursor:none;text-decoration:none}
+.sb-link:hover{background:var(--gray-l2);color:var(--black)}.sb-link.active{background:var(--gray-l2);color:var(--black);font-weight:600}
+.sb-link.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:2px;height:18px;background:var(--black)}
+.sb-link svg{width:16px;height:16px;flex-shrink:0}
+.sb-foot{border-top:1px solid var(--gray-l1);padding:14px 12px}
+.sb-user{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:none;transition:background .15s}.sb-user:hover{background:var(--gray-l2)}
+.sb-avatar{width:30px;height:30px;background:var(--black);color:var(--white);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.65rem;font-weight:700;flex-shrink:0}
+.sb-uname{font-size:.82rem;font-weight:600;color:var(--black)}.sb-urole{font-size:.68rem;color:var(--gray-b);margin-top:1px}
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100svh}
+.topbar{height:var(--topbar);border-bottom:1px solid var(--gray-l1);display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:var(--white);flex-shrink:0}
+.topbar-title{font-weight:700;font-size:.95rem;letter-spacing:-.01em;color:var(--black)}.topbar-sub{font-family:var(--font-mono);font-size:.6rem;color:var(--gray-b);margin-top:2px;letter-spacing:.04em}
+.mob-topbar{display:none;height:56px;background:var(--white);border-bottom:1px solid var(--gray-l1);align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0}
+.mob-logo-w{display:flex;align-items:center;gap:8px}
+.mob-logo{font-family:var(--font-logo);font-weight:700;font-size:1.2rem;letter-spacing:-.02em;color:var(--black)}
+.mob-admin-tag{font-family:var(--font-mono);font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--gray-l1);color:var(--gray-b);padding:2px 5px}
+.bot-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:var(--botnav);background:var(--white);border-top:1px solid var(--gray-l1);z-index:100;align-items:center;justify-content:space-around;padding:0 8px}
+.bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 12px;cursor:none;color:var(--gray-b);transition:color .15s;text-decoration:none;position:relative}
+.bn-item.active{color:var(--black)}.bn-item.active::before{content:'';position:absolute;top:-1px;left:50%;transform:translateX(-50%);width:20px;height:2px;background:var(--black)}
+.bn-item svg{width:20px;height:20px}.bn-label{font-family:var(--font-mono);font-size:.5rem;letter-spacing:.08em;text-transform:uppercase}
+.btn{font-family:var(--font-main);font-size:.76rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:9px 16px;border:1.5px solid var(--black);background:transparent;color:var(--black);cursor:none;transition:background .2s,color .2s;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+.btn:hover{background:var(--black);color:var(--white)}.btn-f{background:var(--black);color:var(--white)}.btn-f:hover{background:var(--gray-d2)}
+.btn-danger{border-color:red;color:red}.btn-danger:hover{background:red;color:white}
+
+.content{flex:1;padding:24px 32px;display:flex;flex-direction:column;gap:20px}
+.card{border:1px solid var(--gray-l1);padding:24px;background:var(--white);animation:fadeUp .4s var(--ease) both}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:1px solid var(--gray-l1);padding-bottom:12px}
+.card-title{font-weight:700;font-size:1rem;color:var(--black)}
+
+.fac-list{display:flex;flex-direction:column;gap:12px}
+.fac-item{border:1px solid var(--gray-l1);padding:16px;display:flex;flex-direction:column;gap:12px}
+.fac-top{display:flex;justify-content:space-between;align-items:flex-start}
+.fac-name{font-weight:700;font-size:1.1rem;color:var(--black)}
+.fac-loc{font-size:0.8rem;color:var(--gray-d1);margin-top:4px}
+.zone-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));gap:12px;margin-top:12px;padding-top:12px;border-top:1px dashed var(--gray-l1)}
+.zone-item{background:var(--gray-l2);padding:12px;border:1px solid var(--gray-l1)}
+.zone-name{font-weight:600;font-size:0.9rem}
+.zone-meta{font-size:0.75rem;color:var(--gray-d1);font-family:var(--font-mono);margin-top:4px}
+
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:.75rem;font-weight:700;color:var(--gray-d1);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+.form-input{width:100%;height:40px;padding:0 12px;border:1px solid var(--gray-l1);background:var(--gray-l2);font-family:var(--font-main);font-size:.85rem;color:var(--black);outline:none;transition:border-color .2s;border-radius:4px;}
+.form-input:focus{border-color:var(--black)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:768px){
+  body{cursor:auto}.cur,.cur-r{display:none}
+  .sidebar{display:none}.mob-topbar{display:flex}.bot-nav{display:flex}
+  .main{margin-left:0}.topbar{display:none}
+  .content{padding:14px 14px calc(var(--botnav)+14px)}
+  .form-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body data-page="admin-facilities" data-admin="1">
+<div class="cur" id="cur"></div><div class="cur-r" id="curR"></div>
+<div class="mob-topbar"><div class="mob-logo-w"><span class="mob-logo">parkd</span><span class="mob-admin-tag">Admin</span></div></div>
+<div class="app">
+  <aside class="sidebar">
+    <a href="index.html" class="sb-logo"><span class="sb-logo-text">parkd</span><span class="sb-admin-tag">Admin</span></a>
+    <nav class="sb-nav">
+      <div class="sb-section">Overview</div>
+      <a href="admin-dashboard.html" class="sb-link"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="1" width="6" height="6" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="9" width="6" height="6" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="9" width="6" height="6" stroke="currentColor" stroke-width="1.3"/></svg>Dashboard</a>
+      <div class="sb-section">Management</div>
+      <a href="admin-slots.html" class="sb-link"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="14" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="1" width="6" height="14" stroke="currentColor" stroke-width="1.3"/></svg>Slot Management</a>
+      <a href="admin-queue.html" class="sb-link"><svg viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Queue Monitor</a>
+      <a href="admin-offers.html" class="sb-link"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 11l6-6M6.5 6.5h.01M9.5 9.5h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Offers</a>
+      <div class="sb-section">System</div>
+      <a href="admin-rates.html" class="sb-link"><svg viewBox="0 0 16 16" fill="none"><path d="M4 10.5h3M10 10.5h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><rect x="1" y="3" width="14" height="10" stroke="currentColor" stroke-width="1.3"/></svg>Zone Rates</a>
+      <a href="admin-billing.html" class="sb-link"><svg viewBox="0 0 16 16" fill="none"><path d="M1 7h14" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="3" width="14" height="10" stroke="currentColor" stroke-width="1.3"/></svg>Billing History</a>
+      <a href="admin-facilities.html" class="sb-link active"><svg viewBox="0 0 16 16" fill="none"><path d="M8 2L1 6v8h14V6L8 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>Facilities</a>
+      <a href="index.html" class="sb-link"><svg viewBox="0 0 16 16" fill="none"><path d="M10 3l4 4-4 4M14 7H6M4 3H2.5A1.5 1.5 0 0 0 1 4.5v7A1.5 1.5 0 0 0 2.5 13H4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>User View</a>
+    </nav>
+    <div class="sb-foot"><div class="sb-user"><div class="sb-avatar">VN</div><div style="flex:1;min-width:0"><div class="sb-uname">Vikram Nair</div><div class="sb-urole">Super Admin</div></div></div></div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <div><div class="topbar-title">Facilities & Zones</div><div class="topbar-sub">Manage locations, capacities, and local admins</div></div>
+    </div>
+    <div class="content" style="flex-direction:row;align-items:flex-start">
+      
+      <div style="flex:1;display:flex;flex-direction:column;gap:20px">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Facilities</div>
+            <button class="btn" onclick="openFacModal()">+ Add Facility</button>
+          </div>
+          <div class="fac-list" id="facList">Loading...</div>
+        </div>
+      </div>
+      
+      <div style="width:360px;display:flex;flex-direction:column;gap:20px">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Add Local Admin</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Name</label>
+            <input type="text" class="form-input" id="laName">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="laEmail">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" id="laPass">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Assign to Facility</label>
+            <select class="form-input" id="laFacId"></select>
+          </div>
+          <button class="btn btn-f" style="width:100%" onclick="addLocalAdmin()">Create Account</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="modalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:900;align-items:center;justify-content:center">
+  <div class="card" style="width:400px;max-width:90%">
+    <div class="card-head">
+      <div class="card-title" id="modalTitle">Add Facility</div>
+    </div>
+    <div id="modalBody"></div>
+    <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:20px">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-f" id="modalSaveBtn">Save</button>
+    </div>
+  </div>
+</div>
+
+<nav class="bot-nav">
+  <a href="admin-dashboard.html" class="bn-item"><svg viewBox="0 0 22 22" fill="none"><rect x="2" y="2" width="8" height="8" stroke="currentColor" stroke-width="1.5"/><rect x="12" y="2" width="8" height="8" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="12" width="8" height="8" stroke="currentColor" stroke-width="1.5"/><rect x="12" y="12" width="8" height="8" stroke="currentColor" stroke-width="1.5"/></svg><span class="bn-label">Overview</span></a>
+  <a href="admin-slots.html" class="bn-item"><svg viewBox="0 0 22 22" fill="none"><rect x="2" y="2" width="8" height="18" stroke="currentColor" stroke-width="1.5"/><rect x="12" y="2" width="8" height="18" stroke="currentColor" stroke-width="1.5"/></svg><span class="bn-label">Slots</span></a>
+  <a href="admin-rates.html" class="bn-item"><svg viewBox="0 0 22 22" fill="none"><path d="M4 10.5h3M10 10.5h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="2" y="5" width="18" height="12" stroke="currentColor" stroke-width="1.5"/></svg><span class="bn-label">Rates</span></a>
+  <a href="admin-facilities.html" class="bn-item active"><svg viewBox="0 0 22 22" fill="none"><path d="M11 3L3 10h3v9h5v-5h2v5h5v-9h3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg><span class="bn-label">Facilities</span></a>
+  <a href="index.html" class="bn-item"><svg viewBox="0 0 22 22" fill="none"><path d="M11 3L3 10h3v9h5v-5h2v5h5v-9h3z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="bn-label">Site</span></a>
+</nav>
+
+<script>
+const cur=document.getElementById('cur'),curR=document.getElementById('curR');let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
+(function loop(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;cur.style.transform=`translate3d(${mx}px,${my}px,0) translate(-50%,-50%)`;curR.style.transform=`translate3d(${rx}px,${ry}px,0) translate(-50%,-50%)`;requestAnimationFrame(loop)})();
+document.querySelectorAll('a,button,.icon-btn,.sb-user,.bn-item').forEach(el=>{el.addEventListener('mouseenter',()=>{cur.classList.add('hov');curR.classList.add('hov')});el.addEventListener('mouseleave',()=>{cur.classList.remove('hov');curR.classList.remove('hov')})});
+</script>
+<script src="js/parkd-api.js"></script>
+<script src="js/parkd-app.js"></script>
+<script src="js/parkd-pages.js"></script>
+</body>
+</html>

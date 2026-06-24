@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Parkd — Slot Grid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=chillax@600,700&f[]=satoshi@400,500,700,900&display=swap"/>
+<style>
+:root{
+  --black:#10100e;--gray-d3:#191815;--gray-d2:#30302b;--gray-d1:#606055;
+  --gray-b:#c0c0ab;--gray-l1:#e8e8cf;--gray-l2:#f8f8dd;--white:#FFFFE3;
+  --font-logo:'Chillax',sans-serif;--font-main:'Satoshi',sans-serif;--font-mono:'Space Mono',monospace;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+  --sidebar:220px;--topbar:56px;--botnav:60px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{height:100%}
+body{min-height:100%;background:var(--white);color:var(--black);font-family:var(--font-main);-webkit-font-smoothing:antialiased;overflow-x:hidden;cursor:none}
+a{text-decoration:none;color:inherit}
+
+.cur{position:fixed;top:0;left:0;width:10px;height:10px;background:var(--white);border-radius:50%;pointer-events:none;z-index:9999;will-change:transform;mix-blend-mode:difference}
+.cur-r{position:fixed;top:0;left:0;width:36px;height:36px;border:1.5px solid var(--white);border-radius:50%;pointer-events:none;z-index:9998;will-change:transform;mix-blend-mode:difference;transition:width .22s var(--ease),height .22s var(--ease),opacity .22s}
+.cur.hov{width:18px;height:18px}
+.cur-r.hov{width:56px;height:56px;opacity:.6}
+
+/* APP SHELL */
+.app{display:flex;min-height:100svh}
+.sidebar{width:var(--sidebar);background:var(--white);border-right:1px solid var(--gray-l1);position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:100}
+.sb-logo{height:var(--topbar);display:flex;align-items:center;padding:0 24px;border-bottom:1px solid var(--gray-l1);font-family:var(--font-logo);font-weight:700;font-size:1.3rem;letter-spacing:-.02em;color:var(--black);text-decoration:none;flex-shrink:0}
+.sb-nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.sb-section{font-family:var(--font-mono);font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-b);padding:14px 12px 6px}
+.sb-link{display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:.84rem;font-weight:500;color:var(--gray-d1);transition:background .15s,color .15s;position:relative;cursor:none;text-decoration:none}
+.sb-link:hover{background:var(--gray-l2);color:var(--black)}
+.sb-link.active{background:var(--gray-l2);color:var(--black);font-weight:600}
+.sb-link.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:2px;height:18px;background:var(--black)}
+.sb-link svg{width:16px;height:16px;flex-shrink:0}
+.sb-foot{border-top:1px solid var(--gray-l1);padding:14px 12px}
+.sb-user{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:none;transition:background .15s}
+.sb-user:hover{background:var(--gray-l2)}
+.sb-avatar{width:30px;height:30px;background:var(--black);color:var(--white);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.65rem;font-weight:700;flex-shrink:0}
+.sb-uname{font-size:.82rem;font-weight:600;color:var(--black)}
+.sb-urole{font-size:.68rem;color:var(--gray-b);margin-top:1px}
+
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100svh}
+.topbar{height:var(--topbar);border-bottom:1px solid var(--gray-l1);display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:var(--white);flex-shrink:0}
+.topbar-title{font-weight:700;font-size:.95rem;letter-spacing:-.01em;color:var(--black)}
+.topbar-sub{font-family:var(--font-mono);font-size:.6rem;color:var(--gray-b);margin-top:2px;letter-spacing:.04em}
+.icon-btn{width:34px;height:34px;border:1px solid var(--gray-l1);background:var(--white);display:flex;align-items:center;justify-content:center;cursor:none;color:var(--gray-d1);transition:border-color .15s,color .15s}
+.icon-btn:hover{border-color:var(--black);color:var(--black)}
+.icon-btn svg{width:15px;height:15px}
+
+/* CONTENT */
+.content{flex:1;padding:24px 32px;display:flex;flex-direction:column;gap:16px}
+
+/* CONTROLS ROW */
+.controls{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.controls-left{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+
+/* facility select */
+.fac-wrap{display:flex;align-items:center;gap:8px}
+.fac-label{font-family:var(--font-mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-b);white-space:nowrap}
+.fac-select{
+  background:var(--white);border:1px solid var(--gray-l1);
+  padding:8px 32px 8px 12px;
+  font-family:var(--font-main);font-size:.82rem;font-weight:600;color:var(--black);
+  cursor:none;outline:none;appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%23c0c0ab' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+  transition:border-color .15s;
+}
+.fac-select:focus{border-color:var(--black)}
+.fac-select option{background:var(--white)}
+
+/* zone tabs */
+.zone-tabs{display:flex;border:1px solid var(--gray-l1)}
+.ztab{
+  padding:8px 18px;
+  font-family:var(--font-main);font-size:.78rem;font-weight:600;
+  color:var(--gray-b);background:none;border:none;border-right:1px solid var(--gray-l1);
+  cursor:none;transition:background .15s,color .15s;white-space:nowrap;
+  display:flex;align-items:center;gap:7px;
+}
+.ztab:last-child{border-right:none}
+.ztab.active{background:var(--black);color:var(--white)}
+.ztab:not(.active):hover{background:var(--gray-l2);color:var(--black)}
+.ztab-count{
+  font-family:var(--font-mono);font-size:.58rem;
+  background:var(--gray-l1);color:var(--gray-d1);
+  padding:1px 5px;
+}
+.ztab.active .ztab-count{background:rgba(255,255,230,.15);color:rgba(255,255,230,.7)}
+
+/* legend */
+.legend{display:flex;align-items:center;gap:16px}
+.leg-i{display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:.58rem;color:var(--gray-d1);text-transform:uppercase;letter-spacing:.06em}
+.leg-b{width:10px;height:10px}
+.lb-f{background:var(--white);border:1.5px solid var(--gray-l1)}
+.lb-o{background:var(--gray-l1);border:1.5px solid var(--gray-b)}
+.lb-s{background:var(--black)}
+
+/* ZONE INFO BAR */
+.zone-bar{
+  display:flex;align-items:center;gap:0;
+  border:1px solid var(--gray-l1);
+  background:var(--white);
+}
+.zb-item{
+  padding:14px 22px;border-right:1px solid var(--gray-l1);
+  display:flex;flex-direction:column;gap:3px;
+}
+.zb-item:last-child{border-right:none;margin-left:auto}
+.zb-label{font-family:var(--font-mono);font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gray-b)}
+.zb-val{font-family:var(--font-mono);font-size:.95rem;font-weight:700;color:var(--black)}
+.tier-tag{
+  display:inline-flex;align-items:center;
+  font-family:var(--font-mono);font-size:.58rem;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;
+  padding:2px 8px;border:1px solid var(--gray-l1);color:var(--gray-d1);
+}
+.tier-tag.gold{border-color:var(--black);color:var(--black)}
+.tier-tag.plat{border-color:var(--black);background:var(--black);color:var(--white)}
+
+/* LOT WRAPPER */
+.lot-wrap{
+  flex:1;
+  background:var(--white);
+  border:1px solid var(--gray-l1);
+  padding:24px;
+  position:relative;overflow:hidden;
+}
+.lot-wrap::before{
+  content:'';position:absolute;inset:0;
+  background-image:radial-gradient(circle,var(--gray-l1) 1px,transparent 1px);
+  background-size:24px 24px;opacity:.5;pointer-events:none;
+}
+.lot-inner{position:relative;z-index:1}
+.entry-lbl{
+  text-align:center;font-family:var(--font-mono);font-size:.58rem;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--gray-b);
+  margin-bottom:18px;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+}
+.entry-lbl::before,.entry-lbl::after{content:'';flex:1;max-width:100px;height:1px;background:var(--gray-l1)}
+
+/* Two-col lot layout */
+.lot-cols{display:grid;grid-template-columns:1fr 56px 1fr;gap:0;align-items:start}
+.slots-col{display:flex;flex-direction:column;gap:6px}
+
+/* lane */
+.lane{display:flex;flex-direction:column;align-items:center;padding-top:6px}
+.lane-line{width:1px;flex:1;background:repeating-linear-gradient(to bottom,var(--gray-b) 0,var(--gray-b) 6px,transparent 6px,transparent 14px);opacity:.5;min-height:60px}
+.lane-arrow{font-family:var(--font-mono);font-size:.65rem;color:var(--gray-b);padding:6px 0;line-height:1}
+
+/* SLOT CELLS */
+.slot{
+  border:1.5px solid var(--gray-l1);
+  padding:12px 14px;
+  cursor:none;
+  transition:border-color .15s,background .15s,transform .12s;
+  position:relative;
+  display:flex;align-items:center;justify-content:space-between;
+  min-height:68px;
+  user-select:none;
+  background:var(--white);
+}
+.slot-free:hover{border-color:var(--gray-d2);transform:scale(1.02);z-index:2;position:relative}
+.slot-free:active{transform:scale(.99)}
+.slot-occ{background:var(--gray-l2);border-color:var(--gray-b);cursor:not-allowed}
+.slot-res{background:var(--gray-l2);border-color:var(--gray-d1);cursor:not-allowed}
+.slot-sel{background:var(--black) !important;border-color:var(--black) !important;transform:scale(1.02);z-index:2;position:relative}
+.slot-sel .slot-num{color:var(--white) !important}
+.slot-sel .slot-type{color:rgba(255,255,230,.5) !important}
+.slot-sel .slot-dot{background:var(--white) !important;border-color:var(--white) !important}
+
+.slot-left{display:flex;flex-direction:column;gap:3px}
+.slot-num{font-family:var(--font-mono);font-size:.8rem;font-weight:700;letter-spacing:.04em;color:var(--gray-d1);line-height:1}
+.slot-free .slot-num{color:var(--black)}
+.slot-occ .slot-num{color:var(--gray-b)}
+.slot-res .slot-num{color:var(--gray-d1)}
+.slot-type{font-size:.62rem;color:var(--gray-b)}
+
+.slot-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.slot-dot{width:6px;height:6px;border-radius:50%;border:1.5px solid var(--gray-l1);background:var(--white)}
+.slot-free .slot-dot{border-color:var(--gray-b);background:var(--white)}
+.slot-occ .slot-dot{background:var(--gray-d2);border-color:var(--gray-d2)}
+.slot-res .slot-dot{background:var(--gray-d1);border-color:var(--gray-d1)}
+
+/* car silhouette in occupied */
+.car-svg{opacity:.2;pointer-events:none}
+
+/* lock icon in reserved */
+.lock-svg{opacity:.35;pointer-events:none}
+
+/* BOOK PANEL — slides up on selection */
+.book-panel{
+  position:fixed;
+  bottom:0;left:var(--sidebar);right:0;
+  background:var(--white);
+  border-top:1px solid var(--black);
+  padding:16px 32px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  z-index:200;
+  transform:translateY(100%);
+  transition:transform .3s var(--ease);
+  flex-wrap:wrap;
+}
+.book-panel.show{transform:translateY(0)}
+.bp-info{}
+.bp-slot{font-family:var(--font-mono);font-size:1.1rem;font-weight:700;color:var(--black);letter-spacing:.02em;margin-bottom:3px}
+.bp-meta{font-size:.76rem;color:var(--gray-d1)}
+.bp-rate{font-family:var(--font-mono);font-size:.9rem;font-weight:700;color:var(--black)}
+.bp-btns{display:flex;gap:10px;align-items:center}
+.btn{font-family:var(--font-main);font-size:.76rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:10px 20px;border:1.5px solid var(--black);background:transparent;color:var(--black);cursor:none;transition:background .2s,color .2s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{background:var(--black);color:var(--white)}
+.btn-f{background:var(--black);color:var(--white)}
+.btn-f:hover{background:var(--gray-d2)}
+.btn svg{width:13px;height:13px}
+
+/* MOBILE TOPBAR + BOTTOM NAV */
+.mob-topbar{display:none;height:56px;background:var(--white);border-bottom:1px solid var(--gray-l1);align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0}
+.mob-logo{font-family:var(--font-logo);font-weight:700;font-size:1.3rem;letter-spacing:-.02em;color:var(--black)}
+.bot-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:var(--botnav);background:var(--white);border-top:1px solid var(--gray-l1);z-index:100;align-items:center;justify-content:space-around;padding:0 8px}
+.bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 16px;cursor:none;color:var(--gray-b);transition:color .15s;text-decoration:none;position:relative}
+.bn-item.active{color:var(--black)}
+.bn-item.active::before{content:'';position:absolute;top:-1px;left:50%;transform:translateX(-50%);width:20px;height:2px;background:var(--black)}
+.bn-item svg{width:21px;height:21px}
+.bn-label{font-family:var(--font-mono);font-size:.52rem;letter-spacing:.08em;text-transform:uppercase}
+
+/* MOBILE */
+@media(max-width:768px){
+  body{cursor:auto}
+  .cur,.cur-r{display:none}
+  .sidebar{display:none}
+  .mob-topbar{display:flex}
+  .bot-nav{display:flex}
+  .main{margin-left:0}
+  .topbar{display:none}
+  .content{padding:14px 14px calc(var(--botnav) + 80px);gap:12px}
+  .controls{flex-direction:column;align-items:stretch;gap:10px}
+  .controls-left{flex-direction:column;align-items:stretch;gap:8px}
+  .fac-wrap{flex-direction:column;align-items:flex-start;gap:4px}
+  .fac-select{width:100%}
+  .zone-tabs{width:100%}
+  .ztab{flex:1;justify-content:center;padding:10px 8px;font-size:.72rem}
+  .legend{gap:10px}
+  .zone-bar{flex-wrap:wrap}
+  .zb-item{padding:10px 14px;border-bottom:1px solid var(--gray-l1)}
+  .lot-wrap{padding:16px 12px}
+  .lot-cols{grid-template-columns:1fr 36px 1fr}
+  .slot{min-height:56px;padding:9px 10px}
+  .slot-num{font-size:.7rem}
+  .book-panel{left:0;padding:14px 16px;padding-bottom:calc(var(--botnav) + 14px)}
+  .bp-btns{width:100%}
+  .bp-btns .btn{flex:1;justify-content:center}
+}
+@media(max-width:400px){
+  .lot-cols{grid-template-columns:1fr 28px 1fr}
+  .slot{min-height:48px;padding:7px 8px}
+  .slot-num{font-size:.62rem}
+  .slot-type{display:none}
+}
+</style>
+</head>
+<body data-page="slots">
+
+<div class="cur" id="cur"></div>
+<div class="cur-r" id="curR"></div>
+
+<div class="mob-topbar">
+  <span class="mob-logo">parkd</span>
+  <div style="display:flex;gap:8px">
+    <div class="icon-btn"><svg viewBox="0 0 15 15" fill="none"><path d="M13 13L9.5 9.5M10.5 6a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+  </div>
+</div>
+
+<div class="app">
+  <aside class="sidebar">
+    <a href="index.html" class="sb-logo">parkd</a>
+    <nav class="sb-nav">
+      <div class="sb-section">Main</div>
+      <a href="dashboard.html" class="sb-link"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="1" width="6" height="6" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="9" width="6" height="6" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="9" width="6" height="6" stroke="currentColor" stroke-width="1.3"/></svg>Dashboard</a>
+      <a href="find.html" class="sb-link"><svg viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.3"/><path d="M12 12l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Find Parking</a>
+      <a href="slots.html" class="sb-link active"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="14" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="1" width="6" height="14" stroke="currentColor" stroke-width="1.3"/></svg>Slot Grid</a>
+      <a href="ticket.html" class="sb-link"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" stroke="currentColor" stroke-width="1.3"/><path d="M1 7h14" stroke="currentColor" stroke-width="1.3"/><circle cx="4.5" cy="10" r=".8" fill="currentColor"/><path d="M7 10h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>My Ticket</a>
+      <div class="sb-section">Account</div>
+      <a href="history.html" class="sb-link"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>History</a>
+      <a href="billing.html" class="sb-link"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" stroke="currentColor" stroke-width="1.3"/><path d="M1 7h14" stroke="currentColor" stroke-width="1.3"/><path d="M4 10.5h3M10 10.5h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Billing</a>
+      <a href="queue.html" class="sb-link"><svg viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Queue</a>
+    </nav>
+    <div class="sb-foot">
+      <div class="sb-user">
+        <div class="sb-avatar">AP</div>
+        <div style="flex:1;min-width:0"><div class="sb-uname">Arjun Patel</div><div class="sb-urole">Gold Plan &middot; Active</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div><div class="topbar-title">Slot Grid</div><div class="topbar-sub">Tap a free slot to book</div></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="icon-btn" onclick="renderZone(currentZone)" title="Refresh">
+          <svg viewBox="0 0 15 15" fill="none"><path d="M13 7.5A5.5 5.5 0 1 1 7.5 2a5.5 5.5 0 0 1 3.9 1.6L13 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M13 2v3H10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Controls -->
+      <div class="controls">
+        <div class="controls-left">
+          <div class="fac-wrap">
+            <span class="fac-label">Facility</span>
+            <select class="fac-select" onchange="clearSel()">
+              <option>Central Plaza Parking</option>
+              <option>City Mall Parking</option>
+            </select>
+          </div>
+          <div class="zone-tabs" id="zoneTabs">
+            <button class="ztab active" onclick="switchZone('A',this)">Zone A <span class="ztab-count" id="cntA">7</span></button>
+            <button class="ztab" onclick="switchZone('B',this)">Zone B <span class="ztab-count" id="cntB">1</span></button>
+            <button class="ztab" onclick="switchZone('P',this)">Zone P <span class="ztab-count" id="cntP">3</span></button>
+          </div>
+        </div>
+        <div class="legend">
+          <div class="leg-i"><div class="leg-b lb-f"></div>Free</div>
+          <div class="leg-i"><div class="leg-b lb-o"></div>Occupied</div>
+          <div class="leg-i"><div class="leg-b lb-s"></div>Selected</div>
+        </div>
+      </div>
+
+      <!-- Zone info bar -->
+      <div class="zone-bar">
+        <div class="zb-item"><div class="zb-label">Zone</div><div class="zb-val" id="zbName">Zone A</div></div>
+        <div class="zb-item"><div class="zb-label">Tier</div><div id="zbTier"><span class="tier-tag">General</span></div></div>
+        <div class="zb-item"><div class="zb-label">Rate</div><div class="zb-val" id="zbRate">&#8377;20 / hr</div></div>
+        <div class="zb-item"><div class="zb-label">Total</div><div class="zb-val" id="zbTotal">50</div></div>
+        <div class="zb-item"><div class="zb-label">Available</div><div class="zb-val" id="zbFree">7</div></div>
+      </div>
+
+      <!-- Lot -->
+      <div class="lot-wrap">
+        <div class="lot-inner">
+          <div class="entry-lbl">Entry / Exit</div>
+          <div class="lot-cols" id="lotCols"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Book panel -->
+<div class="book-panel" id="bookPanel">
+  <div class="bp-info">
+    <div class="bp-slot" id="bpSlot">—</div>
+    <div class="bp-meta" id="bpMeta">Select a free slot to book</div>
+  </div>
+  <div class="bp-rate" id="bpRate"></div>
+  <div class="bp-btns">
+    <button class="btn" onclick="clearSel()">Cancel</button>
+    <a href="ticket.html" class="btn btn-f" id="bookBtn">
+      <svg viewBox="0 0 13 13" fill="none"><path d="M2 6.5h9M8 3l4 3.5L8 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Book This Slot
+    </a>
+  </div>
+</div>
+
+<!-- Bottom nav -->
+<nav class="bot-nav">
+  <a href="dashboard.html" class="bn-item"><svg viewBox="0 0 22 22" fill="none"><rect x="2" y="2" width="8" height="8" stroke="currentColor" stroke-width="1.5"/><rect x="12" y="2" width="8" height="8" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="12" width="8" height="8" stroke="currentColor" stroke-width="1.5"/><rect x="12" y="12" width="8" height="8" stroke="currentColor" stroke-width="1.5"/></svg><span class="bn-label">Home</span></a>
+  <a href="find.html" class="bn-item"><svg viewBox="0 0 22 22" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M17 17l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="bn-label">Find</span></a>
+  <a href="slots.html" class="bn-item active"><svg viewBox="0 0 22 22" fill="none"><rect x="2" y="2" width="8" height="18" stroke="currentColor" stroke-width="1.5"/><rect x="12" y="2" width="8" height="18" stroke="currentColor" stroke-width="1.5"/></svg><span class="bn-label">Slots</span></a>
+  <a href="history.html" class="bn-item"><svg viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="8.5" stroke="currentColor" stroke-width="1.5"/><path d="M11 7v4.5l2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="bn-label">History</span></a>
+  <a href="profile.html" class="bn-item"><svg viewBox="0 0 22 22" fill="none"><circle cx="11" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M4 19c.6-3 3.5-5 7-5s6.4 2 7 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="bn-label">Profile</span></a>
+</nav>
+
+<script>
+// CURSOR
+const cur=document.getElementById('cur'),curR=document.getElementById('curR');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
+(function loop(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;cur.style.transform=`translate3d(${mx}px,${my}px,0) translate(-50%,-50%)`;curR.style.transform=`translate3d(${rx}px,${ry}px,0) translate(-50%,-50%)`;requestAnimationFrame(loop)})();
+function addHov(els){els.forEach(el=>{el.addEventListener('mouseenter',()=>{cur.classList.add('hov');curR.classList.add('hov')});el.addEventListener('mouseleave',()=>{cur.classList.remove('hov');curR.classList.remove('hov')})})}
+addHov(document.querySelectorAll('a,button,.icon-btn,.sb-user,.bn-item'));
+</script>
+<script src="js/parkd-api.js"></script>
+<script src="js/parkd-app.js"></script>
+<script src="js/parkd-pages.js"></script>
+</body>
+</html>

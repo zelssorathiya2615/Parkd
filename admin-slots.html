@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Parkd Admin — Slot Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=chillax@600,700&f[]=satoshi@400,500,700,900&display=swap"/>
+<style>
+:root{--black:#10100e;--gray-d3:#191815;--gray-d2:#30302b;--gray-d1:#606055;--gray-b:#c0c0ab;--gray-l1:#e8e8cf;--gray-l2:#f8f8dd;--white:#FFFFE3;--font-logo:'Chillax',sans-serif;--font-main:'Satoshi',sans-serif;--font-mono:'Space Mono',monospace;--ease:cubic-bezier(0.16,1,0.3,1);--sidebar:220px;--topbar:56px;--botnav:60px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{height:100%}
+body{min-height:100%;background:var(--white);color:var(--black);font-family:var(--font-main);-webkit-font-smoothing:antialiased;overflow-x:hidden;cursor:none}a{text-decoration:none;color:inherit}
+.cur{position:fixed;top:0;left:0;width:10px;height:10px;background:var(--white);border-radius:50%;pointer-events:none;z-index:9999;will-change:transform;mix-blend-mode:difference}
+.cur-r{position:fixed;top:0;left:0;width:36px;height:36px;border:1.5px solid var(--white);border-radius:50%;pointer-events:none;z-index:9998;will-change:transform;mix-blend-mode:difference;transition:width .22s var(--ease),height .22s var(--ease),opacity .22s}
+.cur.hov{width:18px;height:18px}.cur-r.hov{width:56px;height:56px;opacity:.6}
+.app{display:flex;min-height:100svh}
+.sidebar{width:var(--sidebar);background:var(--white);border-right:1px solid var(--gray-l1);position:fixed;top:0;left:0;height:100vh;display:flex;flex-direction:column;z-index:100}
+.sb-logo{height:var(--topbar);display:flex;align-items:center;gap:8px;padding:0 20px;border-bottom:1px solid var(--gray-l1);text-decoration:none;flex-shrink:0}
+.sb-logo-text{font-family:var(--font-logo);font-weight:700;font-size:1.3rem;letter-spacing:-.02em;color:var(--black)}
+.sb-admin-tag{font-family:var(--font-mono);font-size:.52rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--gray-l1);color:var(--gray-b);padding:2px 6px}
+.sb-nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.sb-section{font-family:var(--font-mono);font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gray-b);padding:14px 12px 6px}
+.sb-link{display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:.84rem;font-weight:500;color:var(--gray-d1);transition:background .15s,color .15s;position:relative;cursor:none;text-decoration:none}
+.sb-link:hover{background:var(--gray-l2);color:var(--black)}.sb-link.active{background:var(--gray-l2);color:var(--black);font-weight:600}
+.sb-link.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:2px;height:18px;background:var(--black)}
+.sb-link svg{width:16px;height:16px;flex-shrink:0}
+.sb-foot{border-top:1px solid var(--gray-l1);padding:14px 12px}
+.sb-user{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:none;transition:background .15s}.sb-user:hover{background:var(--gray-l2)}
+.sb-avatar{width:30px;height:30px;background:var(--black);color:var(--white);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.65rem;font-weight:700;flex-shrink:0}
+.sb-uname{font-size:.82rem;font-weight:600;color:var(--black)}.sb-urole{font-size:.68rem;color:var(--gray-b);margin-top:1px}
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100svh}
+.topbar{height:var(--topbar);border-bottom:1px solid var(--gray-l1);display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:var(--white);flex-shrink:0}
+.topbar-title{font-weight:700;font-size:.95rem;letter-spacing:-.01em;color:var(--black)}.topbar-sub{font-family:var(--font-mono);font-size:.6rem;color:var(--gray-b);margin-top:2px;letter-spacing:.04em}
+.icon-btn{width:34px;height:34px;border:1px solid var(--gray-l1);background:var(--white);display:flex;align-items:center;justify-content:center;cursor:none;color:var(--gray-d1);transition:border-color .15s,color .15s;text-decoration:none}
+.icon-btn:hover{border-color:var(--black);color:var(--black)}.icon-btn svg{width:15px;height:15px}
+.mob-topbar{display:none;height:56px;background:var(--white);border-bottom:1px solid var(--gray-l1);align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0}
+.mob-logo-w{display:flex;align-items:center;gap:8px}
+.mob-logo{font-family:var(--font-logo);font-weight:700;font-size:1.2rem;letter-spacing:-.02em;color:var(--black)}
+.mob-admin-tag{font-family:var(--font-mono);font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--gray-l1);color:var(--gray-b);padding:2px 5px}
+.bot-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:var(--botnav);background:var(--white);border-top:1px solid var(--gray-l1);z-index:100;align-items:center;justify-content:space-around;padding:0 8px}
+.bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 12px;cursor:none;color:var(--gray-b);transition:color .15s;text-decoration:none;position:relative}
+.bn-item.active{color:var(--black)}.bn-item.active::before{content:'';position:absolute;top:-1px;left:50%;transform:translateX(-50%);width:20px;height:2px;background:var(--black)}
+.bn-item svg{width:20px;height:20px}.bn-label{font-family:var(--font-mono);font-size:.5rem;letter-spacing:.08em;text-transform:uppercase}
+.btn{font-family:var(--font-main);font-size:.76rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:9px 16px;border:1.5px solid var(--black);background:transparent;color:var(--black);cursor:none;transition:background .2s,color .2s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{background:var(--black);color:var(--white)}.btn-f{background:var(--black);color:var(--white)}.btn-f:hover{background:var(--gray-d2)}.btn svg{width:13px;height:13px}
+.fac-select{background:var(--white);border:1px solid var(--gray-l1);padding:8px 28px 8px 12px;font-family:var(--font-main);font-size:.82rem;font-weight:600;color:var(--black);cursor:none;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%23c0c0ab' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;transition:border-color .15s}
+.fac-select:focus{border-color:var(--black)}.fac-select option{background:var(--white)}
+
+/* CONTENT LAYOUT */
+.content{flex:1;padding:24px 32px;display:grid;grid-template-columns:1fr 240px;gap:20px;align-items:start}
+.grid-area{display:flex;flex-direction:column;gap:16px}
+
+/* Controls */
+.controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.zone-tabs{display:flex;border:1px solid var(--gray-l1)}
+.ztab{padding:8px 18px;font-family:var(--font-main);font-size:.78rem;font-weight:600;color:var(--gray-b);border:none;border-right:1px solid var(--gray-l1);background:var(--white);cursor:none;transition:background .15s,color .15s;white-space:nowrap}
+.ztab:last-child{border-right:none}
+.ztab.active{background:var(--black);color:var(--white)}
+.ztab:not(.active):hover{background:var(--gray-l2);color:var(--black)}
+
+/* Lot wrap */
+.lot-wrap{border:1px solid var(--gray-l1);padding:20px;position:relative;overflow:hidden}
+.lot-wrap::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,var(--gray-l1) 1px,transparent 1px);background-size:22px 22px;opacity:.5;pointer-events:none}
+.lot-inner{position:relative;z-index:1}
+.entry-lbl{text-align:center;font-family:var(--font-mono);font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gray-b);margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:10px}
+.entry-lbl::before,.entry-lbl::after{content:'';flex:1;max-width:80px;height:1px;background:var(--gray-l1)}
+.lot-cols{display:grid;grid-template-columns:1fr 48px 1fr;gap:0;align-items:start}
+.slots-col{display:flex;flex-direction:column;gap:5px}
+.lane{display:flex;flex-direction:column;align-items:center;padding-top:6px}
+.lane-line{width:1px;flex:1;background:repeating-linear-gradient(to bottom,var(--gray-b) 0,var(--gray-b) 5px,transparent 5px,transparent 12px);opacity:.4;min-height:60px}
+.lane-arrow{font-family:var(--font-mono);font-size:.62rem;color:var(--gray-b);padding:5px 0;line-height:1}
+
+/* Slots */
+.slot{border:1.5px solid var(--gray-l1);padding:10px 12px;cursor:none;transition:border-color .15s,background .15s,transform .12s;position:relative;display:flex;align-items:center;justify-content:space-between;min-height:60px;background:var(--white)}
+.slot-free:hover{border-color:var(--black);transform:scale(1.02);z-index:2;position:relative}
+.slot-occ{background:var(--gray-l1);border-color:var(--gray-b)}
+.slot-res{background:var(--gray-l2);border-color:var(--gray-d1)}
+.slot-sel{background:var(--black)!important;border-color:var(--black)!important;transform:scale(1.02);z-index:2;position:relative}
+.slot-sel .snum{color:var(--white)!important}.slot-sel .stype{color:rgba(255,255,230,.4)!important}.slot-sel .sdot{background:var(--white)!important}
+.snum{font-family:var(--font-mono);font-size:.78rem;font-weight:700;letter-spacing:.04em;color:var(--gray-d1);line-height:1}
+.slot-free .snum{color:var(--black)}.slot-occ .snum{color:var(--gray-b)}.slot-res .snum{color:var(--gray-d1)}
+.stype{font-size:.6rem;color:var(--gray-b);margin-top:2px}
+.sdot{width:5px;height:5px;border-radius:50%;background:var(--gray-l1);border:1px solid var(--gray-b)}
+.slot-free .sdot{background:var(--white);border-color:var(--gray-b)}
+.slot-occ .sdot{background:var(--gray-d2);border-color:var(--gray-d2)}
+.slot-res .sdot{background:var(--gray-d1);border-color:var(--gray-d1)}
+
+/* Edit panel */
+.edit-panel{position:fixed;bottom:0;left:var(--sidebar);right:240px;background:var(--white);border-top:1.5px solid var(--black);padding:14px 32px;display:flex;align-items:center;gap:16px;z-index:200;transform:translateY(100%);transition:transform .3s var(--ease);flex-wrap:wrap}
+.edit-panel.show{transform:translateY(0)}
+.ep-slot{font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--black);margin-bottom:3px}
+.ep-current{font-size:.76rem;color:var(--gray-d1)}
+.ep-btns{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+
+/* Stats sidebar */
+.stats-sidebar{display:flex;flex-direction:column;gap:12px;position:sticky;top:24px}
+.stat-box{border:1px solid var(--gray-l1);padding:16px 18px}
+.sb-lbl{font-family:var(--font-mono);font-size:.55rem;letter-spacing:.13em;text-transform:uppercase;color:var(--gray-b);margin-bottom:8px}
+.sb-val{font-family:var(--font-mono);font-size:1.5rem;font-weight:700;color:var(--black);line-height:1;margin-bottom:3px}
+.sb-sub{font-size:.7rem;color:var(--gray-b)}
+.legend-box{border:1px solid var(--gray-l1);padding:16px 18px}
+.leg-title{font-family:var(--font-mono);font-size:.55rem;letter-spacing:.13em;text-transform:uppercase;color:var(--gray-b);margin-bottom:12px}
+.leg-item{display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--gray-d1);padding:5px 0}
+.leg-swatch{width:10px;height:10px;border:1px solid var(--gray-l1)}
+.ls-free{background:var(--white);border-color:var(--gray-b)}
+.ls-occ{background:var(--gray-l1);border-color:var(--gray-b)}
+.ls-res{background:var(--gray-l2);border-color:var(--gray-d1)}
+
+@media(max-width:900px){.content{grid-template-columns:1fr}.stats-sidebar{position:static}}
+@media(max-width:768px){
+  body{cursor:auto}.cur,.cur-r{display:none}
+  .sidebar{display:none}.mob-topbar{display:flex}.bot-nav{display:flex}
+  .main{margin-left:0}.topbar{display:none}
+  .content{padding:14px 14px calc(var(--botnav)+80px);display:flex;flex-direction:column}
+  .edit-panel{left:0;right:0}
+  .lot-cols{grid-template-columns:1fr 32px 1fr}
+  .slot{min-height:52px;padding:8px 9px}
+}
+</style>
+</head>
+<body data-page="admin-slots" data-admin="1">
+<div class="cur" id="cur"></div><div class="cur-r" id="curR"></div>
+<div class="mob-topbar">
+  <div class="mob-logo-w"><span class="mob-logo">parkd</span><span class="mob-admin-tag">Admin</span></div>
+</div>
+<div class="app">
+  <aside class="sidebar">
+    <a href="index.html" class="sb-logo"><span class="sb-logo-text">parkd</span><span class="sb-admin-tag">Admin</span></a>
+    <nav class="sb-nav">
+      <div class="sb-section">Overview</div>
+      <a href="admin-dashboard.html" class="sb-link"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="1" width="6" height="6" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="9" width="6" height="6" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="9" width="6" height="6" stroke="currentColor" stroke-width="1.3"/></svg>Dashboard</a>
+      <div class="sb-section">Management</div>
+      <a href="admin-slots.html" class="sb-link active"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="14" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="1" width="6" height="14" stroke="currentColor" stroke-width="1.3"/></svg>Slot Management</a>
+      <a href="admin-queue.html" class="sb-link"><svg viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Queue Monitor</a>
+      <a href="admin-offers.html" class="sb-link"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 11l6-6M6.5 6.5h.01M9.5 9.5h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Offers</a>
+      <div class="sb-section">System</div>
+      <a href="index.html" class="sb-link"><svg viewBox="0 0 16 16" fill="none"><path d="M10 3l4 4-4 4M14 7H6M4 3H2.5A1.5 1.5 0 0 0 1 4.5v7A1.5 1.5 0 0 0 2.5 13H4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>User View</a>
+    </nav>
+    <div class="sb-foot"><div class="sb-user"><div class="sb-avatar">VN</div><div style="flex:1;min-width:0"><div class="sb-uname">Vikram Nair</div><div class="sb-urole">Super Admin</div></div></div></div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <div><div class="topbar-title">Slot Management</div><div class="topbar-sub">Click any slot to change status</div></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select class="fac-select"><option>Central Plaza Parking</option><option>City Mall Parking</option></select>
+      </div>
+    </div>
+    <div class="content">
+      <div class="grid-area">
+        <div class="controls">
+          <div class="zone-tabs">
+            <button class="ztab active" onclick="switchZone('A',this)">Zone A</button>
+            <button class="ztab" onclick="switchZone('B',this)">Zone B</button>
+            <button class="ztab" onclick="switchZone('P',this)">Zone P</button>
+          </div>
+        </div>
+        <div class="lot-wrap">
+          <div class="lot-inner">
+            <div class="entry-lbl">Entry / Exit</div>
+            <div class="lot-cols" id="lotCols"></div>
+          </div>
+        </div>
+      </div>
+      <div class="stats-sidebar">
+        <div class="stat-box"><div class="sb-lbl">Total Slots</div><div class="sb-val" id="sbTotal">50</div><div class="sb-sub">In this zone</div></div>
+        <div class="stat-box"><div class="sb-lbl">Free</div><div class="sb-val" id="sbFree">7</div><div class="sb-sub">Available now</div></div>
+        <div class="stat-box"><div class="sb-lbl">Occupied</div><div class="sb-val" id="sbOcc">3</div><div class="sb-sub">Currently in use</div></div>
+        <div class="stat-box"><div class="sb-lbl">Reserved</div><div class="sb-val" id="sbRes">0</div><div class="sb-sub">Held for users</div></div>
+        <div class="legend-box">
+          <div class="leg-title">Legend</div>
+          <div class="leg-item"><div class="leg-swatch ls-free"></div>Free</div>
+          <div class="leg-item"><div class="leg-swatch ls-occ"></div>Occupied</div>
+          <div class="leg-item"><div class="leg-swatch ls-res"></div>Reserved</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit panel -->
+<div class="edit-panel" id="editPanel">
+  <div><div class="ep-slot" id="epSlot">—</div><div class="ep-current" id="epCurrent">Select a slot</div></div>
+  <div class="ep-btns">
+    <button class="btn" onclick="setStatus('free')">Mark Free</button>
+    <button class="btn" onclick="setStatus('reserved')">Mark Reserved</button>
+    <button class="btn" onclick="setStatus('occupied')">Mark Occupied</button>
+    <button class="btn btn-f" onclick="closeEdit()">Done</button>
+  </div>
+</div>
+
+<nav class="bot-nav">
+  <a href="admin-dashboard.html" class="bn-item"><svg viewBox="0 0 22 22" fill="none"><rect x="2" y="2" width="8" height="8" stroke="currentColor" stroke-width="1.5"/><rect x="12" y="2" width="8" height="8" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="12" width="8" height="8" stroke="currentColor" stroke-width="1.5"/><rect x="12" y="12" width="8" height="8" stroke="currentColor" stroke-width="1.5"/></svg><span class="bn-label">Overview</span></a>
+  <a href="admin-slots.html" class="bn-item active"><svg viewBox="0 0 22 22" fill="none"><rect x="2" y="2" width="8" height="18" stroke="currentColor" stroke-width="1.5"/><rect x="12" y="2" width="8" height="18" stroke="currentColor" stroke-width="1.5"/></svg><span class="bn-label">Slots</span></a>
+  <a href="admin-queue.html" class="bn-item"><svg viewBox="0 0 22 22" fill="none"><path d="M3 6h16M3 11h11M3 16h7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="bn-label">Queue</span></a>
+  <a href="admin-offers.html" class="bn-item"><svg viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M7 15l8-8M8.5 8.5h.01M13.5 13.5h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="bn-label">Offers</span></a>
+  <a href="index.html" class="bn-item"><svg viewBox="0 0 22 22" fill="none"><path d="M11 3L3 10h3v9h5v-5h2v5h5v-9h3z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="bn-label">Site</span></a>
+</nav>
+
+<script>
+const cur=document.getElementById('cur'),curR=document.getElementById('curR');let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
+(function loop(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;cur.style.transform=`translate3d(${mx}px,${my}px,0) translate(-50%,-50%)`;curR.style.transform=`translate3d(${rx}px,${ry}px,0) translate(-50%,-50%)`;requestAnimationFrame(loop)})();
+document.querySelectorAll('a,button,.icon-btn,.sb-user,.bn-item').forEach(el=>{el.addEventListener('mouseenter',()=>{cur.classList.add('hov');curR.classList.add('hov')});el.addEventListener('mouseleave',()=>{cur.classList.remove('hov');curR.classList.remove('hov')})});
+</script>
+<script src="js/parkd-api.js"></script>
+<script src="js/parkd-app.js"></script>
+<script src="js/parkd-pages.js"></script>
+</body>
+</html>
